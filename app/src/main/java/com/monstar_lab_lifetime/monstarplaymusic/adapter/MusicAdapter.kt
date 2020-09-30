@@ -3,16 +3,14 @@ package com.monstar_lab_lifetime.monstarplaymusic.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.monstar_lab_lifetime.monstarplaymusic.`interface`.OnClickItem
+import com.monstar_lab_lifetime.monstarplaymusic.Interface.OnClickItem
 import com.monstar_lab_lifetime.monstarplaymusic.databinding.ItemMusicBinding
 
 import com.monstar_lab_lifetime.monstarplaymusic.model.Music
-import com.monstar_lab_lifetime.monstarplaymusic.view.HomeActivity
-import java.util.zip.Inflater
 
-class MusicAdapter
+class MusicAdapter( var onClick: OnClickItem)
  : RecyclerView.Adapter<MusicAdapter.MusicHolder>() {
-    private  var onClick: OnClickItem?=null
+
     private var mutableList: MutableList<Music> = mutableListOf()
     class MusicHolder(val binding: ItemMusicBinding):RecyclerView.ViewHolder(binding.root) {
     }
@@ -33,7 +31,7 @@ class MusicAdapter
     override fun onBindViewHolder(holder: MusicAdapter.MusicHolder, position: Int) {
         holder.binding.itemData=mutableList[position]
         holder.binding.root.setOnClickListener {
-            onClick?.clickItem(mutableList[position],position)
+            onClick?.clickItem(mutableList[position],holder.adapterPosition)
 
         }
     }

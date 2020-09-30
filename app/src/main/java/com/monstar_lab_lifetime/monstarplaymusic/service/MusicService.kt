@@ -20,15 +20,30 @@ class MusicService : Service() {
     private lateinit var model: MusicViewModel
     lateinit var mediaPlayer: MediaPlayer
     override fun onBind(intent: Intent?): IBinder? {
-        return null
+        return MyBinder(this)
+
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // return super.onStartCommand(intent, flags, startId)
-        mediaPlayer = MediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI)
-        mediaPlayer.isLooping
+    override fun onCreate() {
+        super.onCreate()
+    }
+
+//    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+//        mediaPlayer = MediaPlayer.create(this, Settings.System.DEFAULT_ALARM_ALERT_URI)!!
+//        mediaPlayer.isLooping
+//        mediaPlayer.start()
+//        return START_STICKY
+//    }
+
+    fun play() {
         mediaPlayer.start()
-        return START_STICKY
+    }
+
+    class MyBinder : Binder {
+        val musicService: MusicService
+        constructor(musicService: MusicService) {
+            this.musicService = musicService
+        }
     }
 
     override fun onDestroy() {

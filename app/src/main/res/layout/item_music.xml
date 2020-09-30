@@ -30,7 +30,7 @@
             android:gravity="center"
             android:text="@{itemData.nameMusic}"
             android:textColor="#000000"
-            android:textSize="28dp"
+            android:textSize="22dp"
             app:layout_constraintLeft_toRightOf="@id/img_music"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -40,9 +40,12 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:gravity="center"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@{itemData.nameSinger}"
             android:textColor="#000000"
-            android:textSize="28dp"
+            android:textSize="20dp"
+            android:textStyle="italic"
             app:layout_constraintBottom_toBottomOf="@id/img_music"
             app:layout_constraintLeft_toRightOf="@id/img_music"
             app:layout_constraintRight_toRightOf="parent" />
