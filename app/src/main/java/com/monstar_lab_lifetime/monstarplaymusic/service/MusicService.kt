@@ -21,11 +21,7 @@ import com.monstar_lab_lifetime.monstarplaymusic.viewmodel.MusicViewModel
 class MusicService : Service() {
     private lateinit var model: MusicViewModel
     private var musicManager: MusicManager? = null
-    var mediaPlayer: MediaPlayer? = null
-
-    var music: Music? = null
     override fun onBind(intent: Intent?): IBinder? {
-        mediaPlayer?.start()
         return MyBinder(this)
     }
 
@@ -39,28 +35,37 @@ class MusicService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        var intent = intent
-        val bundle=intent!!.extras
-        var link = bundle!!.getString("uri")
-        var name = bundle!!.getString("name")
-        mediaPlayer = MediaPlayer.create(this, Uri.parse(link))
-        mediaPlayer?.isLooping
-        mediaPlayer?.start()
-        registerChanel()
-        createNotificationMusic(name!!)
+//        var intent = intent
+//        val bundle=intent?.extras
+//        var link = bundle?.getString("uri")
+//        var name = bundle?.getString("name")
+//        mediaPlayer = MediaPlayer.create(this, Uri.parse(link))
+//        mediaPlayer?.isLooping
+//        mediaPlayer?.start()
+//        registerChanel()
+//        createNotificationMusic(name!!)
         return START_NOT_STICKY
     }
 
     fun play(item: Music) {
         musicManager?.setData(this, item.uri!!)
-       // createNotificationMusic(item)
+        musicManager?.play()
+        createNotificationMusic(item.nameMusic)
+    }
+    fun pause(item:Music){
+        musicManager?.pause()
+    }
+    fun tieptuc(item: Music){
+        musicManager?.tieptuc()
+    }
+    fun stop(item: Music){
+        musicManager?.stop()
     }
 
     class MyBinder : Binder {
-        var musicService: MusicService
-
+        var getService: MusicService
         constructor(musicService: MusicService) {
-            this.musicService = musicService
+            this.getService = musicService
         }
     }
 
@@ -93,11 +98,12 @@ class MusicService : Service() {
                 R.drawable.aodai
             )
         )
+
         startForeground(10, noti.build())
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer?.stop()
+        musicManager?.release()
     }
 }

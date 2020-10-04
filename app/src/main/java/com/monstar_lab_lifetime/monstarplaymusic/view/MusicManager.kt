@@ -27,6 +27,7 @@ class MusicManager : MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener
         play()
     }
 
+
     fun play(): Boolean {
         if (mp == null) {
             return false
@@ -40,6 +41,13 @@ class MusicManager : MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener
             return false
         }
         mp?.pause()
+        return true
+    }
+    fun tieptuc(): Boolean {
+        if (mp == null) {
+            return false
+        }
+        mp?.start()
         return true
     }
 

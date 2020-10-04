@@ -12,7 +12,6 @@ import com.monstar_lab_lifetime.monstarplaymusic.view.HomeActivity
 import java.util.Collections.list
 
 class MusicViewModel : ViewModel() {
-    private var homeActivity: HomeActivity?=null
     var listMusic = MutableLiveData<MutableList<Music>>()
     var listt = mutableListOf<Music>()
     fun getListMusicOffLine(contentResolver: ContentResolver) {
