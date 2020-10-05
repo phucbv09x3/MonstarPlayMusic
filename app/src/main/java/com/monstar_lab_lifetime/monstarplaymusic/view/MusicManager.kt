@@ -5,17 +5,18 @@ import android.media.MediaPlayer
 import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 
-class MusicManager : MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener {
-    private var mp: MediaPlayer? = null
-    val prepare = MutableLiveData<Int>()
+class MusicManager : MediaPlayer.OnErrorListener,MediaPlayer.OnPreparedListener {
+    private var mMediaPlayer: MediaPlayer? = null
+    var prepare = MutableLiveData<Int>()
 
     fun setData(context: Context, urlMusic: String) {
-        mp?.release()
-        mp = MediaPlayer()
-        mp!!.setDataSource(context, Uri.parse(urlMusic))
-        mp?.setOnErrorListener(this)
-        mp?.setOnPreparedListener(this)
-        mp?.prepareAsync()
+        mMediaPlayer?.release()
+        mMediaPlayer = MediaPlayer()
+        mMediaPlayer?.isLooping
+        mMediaPlayer!!.setDataSource(context, Uri.parse(urlMusic))
+        mMediaPlayer?.setOnErrorListener(this)
+        mMediaPlayer?.setOnPreparedListener(this)
+        mMediaPlayer?.prepareAsync()
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
@@ -27,39 +28,39 @@ class MusicManager : MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener
         play()
     }
 
-
     fun play(): Boolean {
-        if (mp == null) {
+        if (mMediaPlayer == null) {
             return false
         }
-        mp?.start()
+        mMediaPlayer?.start()
         return true
     }
 
     fun pause(): Boolean {
-        if (mp == null) {
+        if (mMediaPlayer == null) {
             return false
         }
-        mp?.pause()
+        mMediaPlayer?.pause()
         return true
     }
-    fun tieptuc(): Boolean {
-        if (mp == null) {
+
+    fun continuePlay(): Boolean {
+        if (mMediaPlayer == null) {
             return false
         }
-        mp?.start()
+        mMediaPlayer?.start()
         return true
     }
 
     fun stop(): Boolean {
-        if (mp == null) {
+        if (mMediaPlayer == null) {
             return false
         }
-        mp?.stop()
+        mMediaPlayer?.stop()
         return true
     }
 
     fun release() {
-        mp?.release()
+        mMediaPlayer?.release()
     }
 }

@@ -6,11 +6,8 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Binder
 import android.os.Build
-import android.os.Bundle
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.monstar_lab_lifetime.monstarplaymusic.R
@@ -19,47 +16,38 @@ import com.monstar_lab_lifetime.monstarplaymusic.view.MusicManager
 import com.monstar_lab_lifetime.monstarplaymusic.viewmodel.MusicViewModel
 
 class MusicService : Service() {
-    private lateinit var model: MusicViewModel
-    private var musicManager: MusicManager? = null
+    private lateinit var mMusicViewModel: MusicViewModel
+    private var mMusicManager: MusicManager? = null
     override fun onBind(intent: Intent?): IBinder? {
         return MyBinder(this)
     }
 
-    fun getMusicManager() = musicManager
-    fun getModel() = model
+    fun getMusicManager() = mMusicManager
+    fun getModel() = mMusicViewModel
     override fun onCreate() {
         super.onCreate()
-        model = MusicViewModel()
-        musicManager = MusicManager()
+        mMusicViewModel = MusicViewModel()
+        mMusicManager = MusicManager()
         registerChanel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-//        var intent = intent
-//        val bundle=intent?.extras
-//        var link = bundle?.getString("uri")
-//        var name = bundle?.getString("name")
-//        mediaPlayer = MediaPlayer.create(this, Uri.parse(link))
-//        mediaPlayer?.isLooping
-//        mediaPlayer?.start()
-//        registerChanel()
-//        createNotificationMusic(name!!)
         return START_NOT_STICKY
     }
 
-    fun play(item: Music) {
-        musicManager?.setData(this, item.uri!!)
-        musicManager?.play()
+    fun playMusic(item: Music) {
+        mMusicManager?.setData(this, item.uri!!)
+        mMusicManager?.play()
         createNotificationMusic(item.nameMusic)
     }
-    fun pause(item:Music){
-        musicManager?.pause()
+    fun pauseMusic(item:Music){
+        mMusicManager?.pause()
     }
-    fun tieptuc(item: Music){
-        musicManager?.tieptuc()
+    fun continuePlayMusic(item: Music){
+        mMusicManager?.continuePlay()
     }
-    fun stop(item: Music){
-        musicManager?.stop()
+    fun stopMusic(item: Music){
+        mMusicManager?.stop()
     }
 
     class MyBinder : Binder {
@@ -85,25 +73,24 @@ class MusicService : Service() {
 
     private fun createNotificationMusic(item: String) {
         //tao notification build de setup thong so
-        val noti = NotificationCompat.Builder(
+        val notification = NotificationCompat.Builder(
             this,
             "MusicService"
         )
-        noti.setContentTitle("Music Offline")
-        noti.setContentText(item)
-        noti.setSmallIcon(R.drawable.ic_baseline_library_music_24)
-        noti.setLargeIcon(
+        notification.setContentTitle("Music Offline")
+        notification.setContentText(item)
+        notification.setSmallIcon(R.drawable.ic_baseline_library_music_24)
+        notification.setLargeIcon(
             BitmapFactory.decodeResource(
                 resources,
                 R.drawable.aodai
             )
         )
-
-        startForeground(10, noti.build())
+        startForeground(10, notification.build())
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        musicManager?.release()
+        mMusicManager?.release()
     }
 }

@@ -1,19 +1,15 @@
 package com.monstar_lab_lifetime.monstarplaymusic.viewmodel
 
 import android.content.ContentResolver
-import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.monstar_lab_lifetime.monstarplaymusic.adapter.MusicAdapter
 import com.monstar_lab_lifetime.monstarplaymusic.model.Music
-import com.monstar_lab_lifetime.monstarplaymusic.view.HomeActivity
-import java.util.Collections.list
 
 class MusicViewModel : ViewModel() {
     var listMusic = MutableLiveData<MutableList<Music>>()
-    var listt = mutableListOf<Music>()
+    private var mListMusicInViewModel = mutableListOf<Music>()
     fun getListMusicOffLine(contentResolver: ContentResolver) {
         var uri : Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         var cursor=contentResolver?.query(uri,null,null,null,null)
@@ -29,8 +25,8 @@ class MusicViewModel : ViewModel() {
                 val currentArtist = cursor!!.getString(songArtist)
                 val uri=cursor!!.getString(urii)
                 val durationMusic=cursor!!.getString(duration)
-                listt.add(Music(idd, 1, currentTT, currentArtist,uri,durationMusic))
-                listMusic.value = listt
+                mListMusicInViewModel.add(Music(idd, 1, currentTT, currentArtist,uri,durationMusic))
+                listMusic.value = mListMusicInViewModel
             } while (cursor!!.moveToNext())
         }
     }
