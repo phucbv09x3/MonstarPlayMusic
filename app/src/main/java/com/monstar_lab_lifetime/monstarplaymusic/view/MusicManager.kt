@@ -5,26 +5,23 @@ import android.media.MediaPlayer
 import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 
-class MusicManager : MediaPlayer.OnErrorListener,MediaPlayer.OnPreparedListener {
-    private var mMediaPlayer: MediaPlayer? = null
-    var prepare = MutableLiveData<Int>()
+class MusicManager : MediaPlayer.OnPreparedListener {
+    var mMediaPlayer: MediaPlayer? = null
+    var durationMusic = MutableLiveData<Int>()
+    var currentPosition=MutableLiveData<Int>()
 
     fun setData(context: Context, urlMusic: String) {
         mMediaPlayer?.release()
         mMediaPlayer = MediaPlayer()
-        mMediaPlayer?.isLooping
+        //mMediaPlayer?.isLooping
         mMediaPlayer!!.setDataSource(context, Uri.parse(urlMusic))
-        mMediaPlayer?.setOnErrorListener(this)
         mMediaPlayer?.setOnPreparedListener(this)
         mMediaPlayer?.prepareAsync()
     }
 
-    override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        return true
-    }
-
     override fun onPrepared(mp: MediaPlayer) {
-        prepare.value = mp.duration
+        durationMusic.value = mp?.duration
+        currentPosition.value=mp?.currentPosition
         play()
     }
 
@@ -63,4 +60,6 @@ class MusicManager : MediaPlayer.OnErrorListener,MediaPlayer.OnPreparedListener 
     fun release() {
         mMediaPlayer?.release()
     }
+
+
 }

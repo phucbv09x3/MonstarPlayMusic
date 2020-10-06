@@ -10,6 +10,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.Observer
 import com.monstar_lab_lifetime.monstarplaymusic.R
 import com.monstar_lab_lifetime.monstarplaymusic.model.Music
 import com.monstar_lab_lifetime.monstarplaymusic.view.MusicManager
@@ -18,9 +19,7 @@ import com.monstar_lab_lifetime.monstarplaymusic.viewmodel.MusicViewModel
 class MusicService : Service() {
     private lateinit var mMusicViewModel: MusicViewModel
     private var mMusicManager: MusicManager? = null
-    override fun onBind(intent: Intent?): IBinder? {
-        return MyBinder(this)
-    }
+
 
     fun getMusicManager() = mMusicManager
     fun getModel() = mMusicViewModel
@@ -30,6 +29,9 @@ class MusicService : Service() {
         mMusicManager = MusicManager()
         registerChanel()
     }
+    override fun onBind(intent: Intent?): IBinder? {
+        return MyBinder(this)
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return START_NOT_STICKY
@@ -37,7 +39,7 @@ class MusicService : Service() {
 
     fun playMusic(item: Music) {
         mMusicManager?.setData(this, item.uri!!)
-        mMusicManager?.play()
+       // mMusicManager?.play()
         createNotificationMusic(item.nameMusic)
     }
     fun pauseMusic(item:Music){
