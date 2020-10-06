@@ -1,5 +1,6 @@
 package com.monstar_lab_lifetime.monstarplaymusic.view
 
+import android.app.Notification
 import android.content.*
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
@@ -8,6 +9,7 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.os.IBinder
 import android.view.View
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -18,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.monstar_lab_lifetime.monstarplaymusic.R
 import com.monstar_lab_lifetime.monstarplaymusic.Interface.OnClickItem
 import com.monstar_lab_lifetime.monstarplaymusic.adapter.MusicAdapter
+import com.monstar_lab_lifetime.monstarplaymusic.broadcast.NotificationReceiver
 import com.monstar_lab_lifetime.monstarplaymusic.databinding.ActivityHomeBinding
 import com.monstar_lab_lifetime.monstarplaymusic.model.Music
 import com.monstar_lab_lifetime.monstarplaymusic.service.MusicService
@@ -44,6 +47,7 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
         const val MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1
     }
 
+
     private lateinit var musicViewModel: MusicViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +63,37 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
         homeBinding!!.lifecycleOwner = this
         requestRead()
         clicks()
+        broad()
 
+
+    }
+
+    fun broad() {
+        val broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val action = intent!!.extras?.getString("actionname")
+                when (action) {
+                    MusicService.ACTION_PREVIOUS -> {
+                        Toast.makeText(context, "hello", Toast.LENGTH_LONG).show()
+                    }
+                    MusicService.ACTION_NEXT -> {
+
+                    }
+                    MusicService.ACTION_PLAY -> {
+
+                    }
+                }
+            }
+
+
+        }
+        registerReceiver(broadcastReceiver, IntentFilter("ACTION"))
+    }
+
+    private fun startStarservice() {
+        val intent = Intent()
+        intent.setClass(this, MusicService::class.java)
+        startService(intent)
     }
 
     private fun clicks() {
@@ -109,13 +143,12 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
 
     override fun clickItem(music: Music, position: Int) {
         this.mMusic = music
+        initSeekBar()
         this.mPosition = position
         show_play.visibility = View.VISIBLE
         btn_showPlay.visibility = View.GONE
         tv_nameMusicShow.text = music.nameMusic
         tv_nameSingerShow.text = music.nameSinger
-
-
         val countDownTimer = object : CountDownTimer(8000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 var text = millisUntilFinished / 1000
@@ -136,6 +169,7 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
         }
         isCheckMusicRunning = true
         mMusicService?.playMusic(music)
+
         mMusicService?.getMusicManager()?.durationMusic!!.observe(this, Observer {
             this.mTimeMusicIsRunning = it
             var hours: Long = (it.toLong() / 3600000)
@@ -148,12 +182,35 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                 tv_total_time.setText(minute.toString() + ":" + second)
             }
         })
+        seekBar_time.max=mTimeMusicIsRunning
+        seekBar_time.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                var hours: Long = (progress.toLong() / 3600000)
+                var minute = (progress.toLong() - (hours * 3600000)) / 60000
+                var second = (progress.toLong() - (hours * 3600000) - (minute * 60000)).toString()
 
-        mMusicService?.getMusicManager()?.currentPosition!!.observe(this, Observer {
-            Toast.makeText(this, it.toString(), Toast.LENGTH_LONG).show()
+                    tv_time.setText(minute.toString() + ":" + second)
+
+
+                //Toast.makeText(applicationContext,progress.toString(),Toast.LENGTH_LONG).show()
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
         })
+
+//        mMusicService?.getMusicManager()?.currentPosition!!.observe(this, Observer {
+//            Toast.makeText(this, it.toString(), Toast.LENGTH_LONG).show()
+//        })
         // initSeekBar()
         btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+
 
     }
 
@@ -167,6 +224,7 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                         seekBar_time.progress =
                             mMusicService?.getMusicManager()?.mMediaPlayer!!.currentPosition
                         handler.postDelayed(this, 1000)
+
                     } catch (ex: IOException) {
                         seekBar_time.progress = 0
                     }

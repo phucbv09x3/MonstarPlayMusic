@@ -8,8 +8,6 @@ import androidx.lifecycle.MutableLiveData
 class MusicManager : MediaPlayer.OnPreparedListener {
     var mMediaPlayer: MediaPlayer? = null
     var durationMusic = MutableLiveData<Int>()
-    var currentPosition=MutableLiveData<Int>()
-
     fun setData(context: Context, urlMusic: String) {
         mMediaPlayer?.release()
         mMediaPlayer = MediaPlayer()
@@ -21,7 +19,6 @@ class MusicManager : MediaPlayer.OnPreparedListener {
 
     override fun onPrepared(mp: MediaPlayer) {
         durationMusic.value = mp?.duration
-        currentPosition.value=mp?.currentPosition
         play()
     }
 
