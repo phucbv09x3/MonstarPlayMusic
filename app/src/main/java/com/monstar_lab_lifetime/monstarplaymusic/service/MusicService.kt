@@ -4,26 +4,37 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.monstar_lab_lifetime.monstarplaymusic.Broad
 import com.monstar_lab_lifetime.monstarplaymusic.R
 import com.monstar_lab_lifetime.monstarplaymusic.model.Music
 import com.monstar_lab_lifetime.monstarplaymusic.view.HomeActivity
 import com.monstar_lab_lifetime.monstarplaymusic.view.MusicManager
+import com.monstar_lab_lifetime.monstarplaymusic.view.Util
 import com.monstar_lab_lifetime.monstarplaymusic.viewmodel.MusicViewModel
 
 class MusicService : Service() {
-    companion object{
-        const val ACTION_PLAY="play"
-        const val ACTION_PREVIOUS="previous"
-        const val ACTION_NEXT="next"
-        const val ACTION_CLOSE="close"
+
+    companion object {
+        const val ACTION_PLAY = "play"
+        const val ACTION_PREVIOUS = "previous"
+        const val ACTION_NEXT = "next"
+        const val ACTION_CLOSE = "close"
     }
+
+    // var mNotificationManager :NotificationManager?=null
+    //getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private lateinit var mMusicViewModel: MusicViewModel
     private var mMusicManager: MusicManager? = null
     fun getMusicManager() = mMusicManager
@@ -34,30 +45,44 @@ class MusicService : Service() {
         mMusicViewModel = MusicViewModel()
         mMusicManager = MusicManager()
         registerChanel()
+
     }
+
+
     override fun onBind(intent: Intent?): IBinder? {
+        Log.d("stt", "inbinder")
         return MyBinder(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("st", "stcm")
         return START_REDELIVER_INTENT
     }
 
-    fun playMusic(item: Music) {
-        mMusicManager?.setData(this, item.uri!!)
-       // mMusicManager?.play_pause()
-        createNotificationMusic(item)
 
+    fun playMusic(item: Music) {
+        mMusicManager?.setData(this, item.uri)
+        createNotificationMusic(item)
     }
-    fun pauseMusic(item:Music){
+
+    fun pauseMusic(item: Music) {
         mMusicManager?.pause()
 
     }
-    fun continuePlayMusic(item: Music){
+
+    fun continuePlayMusic(item: Music) {
         mMusicManager?.continuePlay()
     }
-    fun stopMusic(item: Music){
+
+    fun stopMusic(item: Music) {
         mMusicManager?.stop()
+
+    }
+
+    fun isPlaying(): Boolean {
+        if (mMusicManager?.isPlaying() == true)
+            return true
+        return false
     }
 
     class MyBinder : Binder {
@@ -78,56 +103,65 @@ class MusicService : Service() {
             )
             channel.description = "YOUR_NOTIFICATION_CHANNEL_DESCRIPTION"
             mNotificationManager.createNotificationChannel(channel)
+
         }
     }
 
-     private fun createNotificationMusic(item: Music) {
+    private fun createNotificationMusic(item: Music) {
+        Log.d("no",item.toString())
+        //chỗ này log ra nó đã nhận bài hát đây rồi
         val notification = NotificationCompat.Builder(
             this,
             "MusicService"
         )
-        val intent=Intent(this,HomeActivity::class.java)
-         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val intentContent=PendingIntent.getActivity(this,1,intent,0)
-        val intentBroadPlay=Intent().setAction(ACTION_PLAY)
-        val actionIntentPlay=PendingIntent.getBroadcast(this,0,intentBroadPlay,PendingIntent.FLAG_UPDATE_CURRENT)
+        val intent = Intent(this, HomeActivity::class.java)
 
-        val intentBroadPrevious=Intent()
-            .setAction(ACTION_PREVIOUS)
-        val actionIntentPrevious=PendingIntent.getBroadcast(this,0,intentBroadPrevious,PendingIntent.FLAG_UPDATE_CURRENT)
-
-        val intentBroadNext=Intent()
-            .setAction(ACTION_NEXT)
-        val actionIntentNext=PendingIntent.getBroadcast(this,0,intentBroadNext,PendingIntent.FLAG_UPDATE_CURRENT)
-
-        val intentBroadClose=Intent()
-            .setAction(ACTION_CLOSE)
-        val actionIntentClose=PendingIntent.getBroadcast(this,0,intentBroadClose,PendingIntent.FLAG_UPDATE_CURRENT)
-//        sendBroadcast(intent)
-        notification.addAction(R.drawable.icon_previous_notifi, "previous",actionIntentPrevious)
-        notification.addAction(R.drawable.icon_notifi, "play",actionIntentPlay)
-        notification.addAction(R.drawable.icon_next_notifi, "next",actionIntentNext)
-        notification.addAction(R.drawable.ic_baseline_close_24,"Close",actionIntentClose)
+        intent.flags= Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.putExtra("re","okbalo")
+        val intentContent = PendingIntent.getActivity(this, 1, intent, 0)
+        val intentBroadPlay = Intent().setAction(ACTION_PLAY)
+        val actionIntentPlay =
+            PendingIntent.getBroadcast(this, 0, intentBroadPlay, PendingIntent.FLAG_UPDATE_CURRENT)
+        val intentBroadPrevious = Intent().setAction(ACTION_PREVIOUS)
+        val actionIntentPrevious = PendingIntent.getBroadcast(
+            this,
+            0,
+            intentBroadPrevious,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        val intentBroadNext = Intent().setAction(ACTION_NEXT)
+        val actionIntentNext =
+            PendingIntent.getBroadcast(this, 0, intentBroadNext, PendingIntent.FLAG_UPDATE_CURRENT)
+        val intentBroadClose = Intent().setAction(ACTION_CLOSE)
+        val actionIntentClose =
+            PendingIntent.getBroadcast(this, 0, intentBroadClose, PendingIntent.FLAG_UPDATE_CURRENT)
+        notification.addAction(R.drawable.icon_previous_notifi, "previous", actionIntentPrevious)
+        notification.addAction(R.drawable.icon_notifi, "play", actionIntentPlay)
+        notification.addAction(R.drawable.icon_next_notifi, "next", actionIntentNext)
+        notification.addAction(R.drawable.ic_baseline_close_24, "Close", actionIntentClose)
         notification.setContentIntent(intentContent)
         notification.setContentTitle("Music Offline From Phúc")
         notification.setContentText(item.nameMusic)
-        notification.setOnlyAlertOnce(true)
-        notification.priority=NotificationCompat.PRIORITY_HIGH
         notification.setSmallIcon(R.drawable.ic_baseline_library_music_24)
         notification.setAutoCancel(true)
+        notification.priority = NotificationCompat.PRIORITY_DEFAULT
         notification.setStyle(androidx.media.app.NotificationCompat.MediaStyle())
         notification.setLargeIcon(
             BitmapFactory.decodeResource(
                 resources,
-                R.drawable.aodai
+                R.drawable.nhaccuatui
             )
         )
         startForeground(10, notification.build())
+
     }
 
     override fun onDestroy() {
+        Log.d("si", "ondestroy")
         super.onDestroy()
+        mMusicManager?.stop()
         mMusicManager?.release()
+
     }
 
 //    override fun onTaskRemoved(rootIntent: Intent?) {

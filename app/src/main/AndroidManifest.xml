@@ -15,6 +15,7 @@
 
         <activity
             android:name=".view.HomeActivity"
+            android:launchMode="singleTop"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,7 +24,17 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.MusicService" />
+        <service android:name=".service.MusicService" >
+            <intent-filter>
+                <action android:name="close"/>
+                <action android:name="play"/>
+                <action android:name="previous"/>
+                <action android:name="next"/>
+            </intent-filter>
+        </service>
+        <receiver android:name=".Broad">
+
+        </receiver>
 
     </application>
 

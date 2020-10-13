@@ -11,13 +11,17 @@ class MusicManager : MediaPlayer.OnPreparedListener ,MediaPlayer.OnErrorListener
     var mMediaPlayer: MediaPlayer? = null
     var durationMusic = MutableLiveData<Int>()
     fun setData(context: Context, uriMusic: String) {
-        mMediaPlayer?.release()
+       mMediaPlayer?.release()
         mMediaPlayer = MediaPlayer()
-        //mMediaPlayer?.isLooping
-        mMediaPlayer!!.setDataSource(context, Uri.parse(uriMusic))
-        mMediaPlayer?.setOnErrorListener(this)
-        mMediaPlayer?.setOnPreparedListener(this)
-        mMediaPlayer?.prepareAsync()
+        mMediaPlayer?.let {
+            //mMediaPlayer?.isLooping
+            it.isLooping
+            it.setDataSource(context, Uri.parse(uriMusic))
+            it.setOnErrorListener(this)
+            it.setOnPreparedListener(this)
+            it.prepareAsync()
+        }
+
     }
 
     override fun onPrepared(mp: MediaPlayer) {
@@ -25,6 +29,14 @@ class MusicManager : MediaPlayer.OnPreparedListener ,MediaPlayer.OnErrorListener
         play()
     }
 
+    fun isPlaying():Boolean{
+        mMediaPlayer?.let {
+            it.isPlaying
+            return true
+        }
+        return false
+
+    }
     fun play(): Boolean {
         if (mMediaPlayer == null) {
             return false
@@ -60,10 +72,8 @@ class MusicManager : MediaPlayer.OnPreparedListener ,MediaPlayer.OnErrorListener
     fun release() {
         mMediaPlayer?.release()
     }
-
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
         return true
     }
-
 
 }
