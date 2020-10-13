@@ -70,7 +70,8 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
         registerReceiver(broadcastReceiver, intentFil)
         createConnection()
         onNewIntent(intent)
-        Log.d("cre","cret")
+
+        Log.d("cre", "cret")
 
     }
 //
@@ -90,13 +91,10 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
         override fun onReceive(context: Context?, intent: Intent?) {
             var ac = intent?.action
             var count = 0
-
-            // tv_nameMusicShow.text=intent?.extras?.getString("re")
-            Log.d("m", intent?.extras?.getString("o").toString())
             when (ac) {
                 MusicService.ACTION_CLOSE -> {
                     if (isCheckBoundService) {
-                        if (mMusicService!!.isPlaying()) {
+                        if (mMusicService?.getMusicManager()!!.isPlaying()) {
                             mMusicService?.stopMusic(mMusic!!)
                         }
 
@@ -108,35 +106,103 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
 
                 }
                 MusicService.ACTION_NEXT -> {
-                    mPosition += 1
-                    mMusicService?.playMusic(mListPlay[mPosition])
-                    tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
-                    tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
-                    btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-                    initSeekBar()
-                    runSeekBar()
+
+                    if (mMusicService?.getMusicManager()?.mMediaPlayer!!.isPlaying) {
+                        if (mPosition < mListPlay.size - 1) {
+                            mPosition += 1
+                            btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+                            tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
+                            tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
+                            mMusicService?.playMusic(mListPlay[mPosition])
+                            //startForegroundService(intent)
+
+                        } else {
+                            Toast.makeText(
+                                this@HomeActivity,
+                                "Không thể next bài",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    } else {
+                        Toast.makeText(this@HomeActivity, "Không thể next bài", Toast.LENGTH_LONG)
+                            .show()
+                    }
+//                    mPosition += 1
+//                    mMusicService?.playMusic(mListPlay[mPosition])
+//                    tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
+//                    tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
+//                    btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+
                 }
                 MusicService.ACTION_PLAY -> {
-                    if (mMusicService?.getMusicManager()?.mMediaPlayer!!.isPlaying) {
-                        mMusicService?.pauseMusic(mListPlay[mPosition])
-                        btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                    } else {
-                        mMusicService?.continuePlayMusic(mListPlay[mPosition])
-                        tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
-                        tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
-                        btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-                        initSeekBar()
-                        runSeekBar()
+                    mMusicService?.getMusicManager()?.mMediaPlayer?.let {
+                        if (it.isPlaying) {
+                            btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                            mMusicService?.let {
+                                it.pauseMusic(mMusic!!)
+                            }
+                        } else {
+                            btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+                            mMusicService?.let { it ->
+                                mMusic?.let { itt ->
+                                    it.continuePlayMusic(itt)
+                                }
+
+                            }
+
+                        }
                     }
+//                    if (mMusicService?.getMusicManager()?.mMediaPlayer!!.isPlaying) {
+//                        mMusicService?.pauseMusic(mListPlay[mPosition])
+//                        btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+//                    } else {
+//                        mMusicService?.continuePlayMusic(mListPlay[mPosition])
+//                        tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
+//                        tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
+//                        btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+//                        Log.d("log", "pause")
+//
+//                    }
                 }
                 MusicService.ACTION_PREVIOUS -> {
-                    mPosition -= 1
-                    mMusicService?.playMusic(mListPlay[mPosition])
-                    tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
-                    tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
-                    btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-                    initSeekBar()
-                    runSeekBar()
+                    mMusicService?.getMusicManager()?.mMediaPlayer?.let {
+                        if (it.isPlaying) {
+                            if (mListPlay.size > mPosition && mPosition >= 1) {
+                                mPosition -= 1
+                                btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+                                tv_nameMusicShow.text = mListPlay[mPosition]!!.nameMusic
+                                tv_nameSingerShow.text = mListPlay[mPosition]!!.nameSinger
+                                mMusicService?.playMusic(mListPlay[mPosition])
+                            } else {
+                                Toast.makeText(
+                                    this@HomeActivity,
+                                    "Không thể back bài",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        } else {
+                            Toast.makeText(
+                                this@HomeActivity,
+                                "Không thể back bài",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+//                    mPosition -= 1
+//                    if (mPosition == 0) {
+//                        mPosition = 0
+//                        mMusicService?.playMusic(mListPlay[0])
+//                        tv_nameMusicShow.text = mListPlay[0].nameMusic
+//                        tv_nameSingerShow.text = mListPlay[0].nameSinger
+//                        btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+//                    } else {
+//                        mMusicService?.playMusic(mListPlay[mPosition])
+//                        tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
+//                        tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
+//                        btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+//                    }
+
+
                 }
             }
         }
@@ -196,7 +262,6 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
     override fun clickItem(music: Music, position: Int) {
         this.mMusic = music
         this.mPosition = position
-
         show_play.visibility = View.VISIBLE
         //btn_showPlay.visibility = View.GONE
         tv_nameMusicShow.text = music.nameMusic
@@ -315,6 +380,20 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
 //                mMusic?.let {
 //                    //mMusicService?.playMusic(it)
 //                }
+                mMusicService?.mu?.observe(this@HomeActivity, Observer {
+                    tv_nameMusicShow.text = it.nameMusic
+                    tv_nameSingerShow.text = it.nameSinger
+                    var minute = it.duration.toLong() / 1000 / 60
+                    var second = (it.duration.toLong() / 1000) % 60 as Int
+                    tv_total_time.text = ("$minute:$second")
+                    if (mMusicService?.getMusicManager()?.mMediaPlayer!!.isPlaying) {
+                        btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+                    } else {
+                        btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                    }
+                })
+                initSeekBar()
+                runSeekBar()
 
             }
         }
@@ -324,61 +403,41 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
     }
 
 
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        val bundle: Bundle? = intent?.extras
-        bundle?.let {
-            if (it.containsKey("re")) {
-               setContentView(R.layout.activity_home)
-                tv_nameMusicShow.text=it.getString("re")
-            }
-        }
-    }
-
     override fun onClick(v: View?) {
-//        if (mPosition==0){
-//            mPosition=1
+//        if (mPosition == mListPlay.size) {
+//            mPosition -= 1
 //        }
-        var intent = Intent(this, MusicService::class.java)
-        if (mPosition == mListPlay.size) {
-            mPosition -= 1
-        }
         when (v?.id) {
             R.id.btn_play -> {
-                mCount++
-                if (mMusicService?.getMusicManager()?.mMediaPlayer!!.isPlaying) {
-                    btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                    if (mMusic == null) {
-                        Toast.makeText(this, "vui lòng chọn bài hát !", Toast.LENGTH_LONG).show()
+                mMusicService?.getMusicManager()?.mMediaPlayer?.let {it->
+                    if (it.isPlaying) {
+                        btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                            mMusicService?.let {it->
+                                mMusic?.let { itt->
+                                    it.pauseMusic(itt)
+                                }
+                            }
                     } else {
-                        mMusicService?.let {
-                            it.pauseMusic(mMusic!!)
-                            //startForegroundService(intent)
+                        btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+                        mMusicService?.let { it ->
+                            mMusic?.let { itt ->
+                                it.continuePlayMusic(itt)
+                            }
                         }
+
                     }
-
-
-                } else {
-                    btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-                    mMusicService?.let {
-                        it.continuePlayMusic(mMusic!!)
-                        // startForegroundService(intent)
-                    }
-
                 }
             }
 
             R.id.btn_next -> {
-                bindService(intent, mConnection, 0)
-                mPosition += 1
+
                 if (mMusicService?.getMusicManager()?.mMediaPlayer!!.isPlaying) {
-                    if (mPosition < mListPlay.size) {
+                    if (mPosition < mListPlay.size-1) {
+                        mPosition += 1
                         btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
                         tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
                         tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
                         mMusicService?.playMusic(mListPlay[mPosition])
-                        //startForegroundService(intent)
 
                     } else {
                         Toast.makeText(this, "Không thể next bài", Toast.LENGTH_LONG).show()
@@ -388,19 +447,20 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                 }
             }
             R.id.btn_previous -> {
-                // runSeekBar()
-                mPosition -= 1
-                if (mMusicService?.getMusicManager()?.mMediaPlayer!!.isPlaying) {
-                    if (mListPlay.size > mPosition && mPosition >= 0) {
-                        btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-                        tv_nameMusicShow.text = mListPlay[mPosition]!!.nameMusic
-                        tv_nameSingerShow.text = mListPlay[mPosition]!!.nameSinger
-                        mMusicService?.playMusic(mListPlay[mPosition])
-                        //startForegroundService(intent)
+                mMusicService?.getMusicManager()?.mMediaPlayer?.let {
+                    if (it.isPlaying) {
+                        if (mListPlay.size > mPosition && mPosition >= 1) {
+                            mPosition -= 1
+                            btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+                            tv_nameMusicShow.text = mListPlay[mPosition]!!.nameMusic
+                            tv_nameSingerShow.text = mListPlay[mPosition]!!.nameSinger
+                            mMusicService?.playMusic(mListPlay[mPosition])
+                        } else {
+                            Toast.makeText(this, "Không thể back bài", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        Toast.makeText(this, "Không thể back bài", Toast.LENGTH_LONG).show()
                     }
-
-                } else {
-                    Toast.makeText(this, "Không thể back bài", Toast.LENGTH_LONG).show()
                 }
 
             }

@@ -15,6 +15,7 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.MutableLiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.monstar_lab_lifetime.monstarplaymusic.Broad
 import com.monstar_lab_lifetime.monstarplaymusic.R
@@ -26,6 +27,9 @@ import com.monstar_lab_lifetime.monstarplaymusic.viewmodel.MusicViewModel
 
 class MusicService : Service() {
 
+    var mu = MutableLiveData<Music>()
+
+    var cu=MutableLiveData<Int>()
     companion object {
         const val ACTION_PLAY = "play"
         const val ACTION_PREVIOUS = "previous"
@@ -62,6 +66,7 @@ class MusicService : Service() {
 
     fun playMusic(item: Music) {
         mMusicManager?.setData(this, item.uri)
+        cu.value=mMusicManager?.mMediaPlayer?.currentPosition
         createNotificationMusic(item)
     }
 
@@ -79,14 +84,11 @@ class MusicService : Service() {
 
     }
 
-    fun isPlaying(): Boolean {
-        if (mMusicManager?.isPlaying() == true)
-            return true
-        return false
-    }
+
 
     class MyBinder : Binder {
         var getService: MusicService
+
         constructor(musicService: MusicService) {
             this.getService = musicService
         }
@@ -108,16 +110,16 @@ class MusicService : Service() {
     }
 
     private fun createNotificationMusic(item: Music) {
-        Log.d("no",item.toString())
+        Log.d("no", item.toString())
+        mu.value = item
         //chỗ này log ra nó đã nhận bài hát đây rồi
         val notification = NotificationCompat.Builder(
             this,
             "MusicService"
         )
         val intent = Intent(this, HomeActivity::class.java)
-
-        intent.flags= Intent.FLAG_ACTIVITY_NEW_TASK
-        intent.putExtra("re","okbalo")
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.putExtra("re", "okbalo")
         val intentContent = PendingIntent.getActivity(this, 1, intent, 0)
         val intentBroadPlay = Intent().setAction(ACTION_PLAY)
         val actionIntentPlay =

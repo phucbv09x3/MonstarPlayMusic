@@ -30,11 +30,11 @@ class MusicManager : MediaPlayer.OnPreparedListener ,MediaPlayer.OnErrorListener
     }
 
     fun isPlaying():Boolean{
-        mMediaPlayer?.let {
-            it.isPlaying
-            return true
-        }
-        return false
+       if (mMediaPlayer==null){
+           return false
+       }
+        mMediaPlayer!!.isPlaying
+        return true
 
     }
     fun play(): Boolean {
