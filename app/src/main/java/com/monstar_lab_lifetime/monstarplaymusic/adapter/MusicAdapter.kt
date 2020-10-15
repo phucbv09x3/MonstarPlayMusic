@@ -1,5 +1,6 @@
 package com.monstar_lab_lifetime.monstarplaymusic.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -9,6 +10,7 @@ import com.monstar_lab_lifetime.monstarplaymusic.databinding.ItemMusicBinding
 
 import com.monstar_lab_lifetime.monstarplaymusic.model.Music
 import com.monstar_lab_lifetime.monstarplaymusic.view.Util
+import kotlinx.android.synthetic.main.item_music.view.*
 
 class MusicAdapter(var onClick: OnClickItem) : RecyclerView.Adapter<MusicAdapter.MusicHolder>() {
 
@@ -35,10 +37,11 @@ class MusicAdapter(var onClick: OnClickItem) : RecyclerView.Adapter<MusicAdapter
         holder.binding.itemData = mutableList[position]
         holder.binding.root.setOnClickListener {
             onClick?.clickItem(mutableList[position], holder.adapterPosition)
-
+            holder.binding.root.tv_nameMusic.setTextColor(Color.BLUE)
         }
         if(Util.songArt(mutableList[position].uri)==null){
             holder.binding.imgMusic.setImageResource(R.drawable.nhaccuatui)
+
         }else{
             holder.binding.imgMusic.setImageBitmap(Util.songArt(mutableList[position].uri))
         }

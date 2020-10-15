@@ -4,25 +4,19 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.monstar_lab_lifetime.monstarplaymusic.Broad
 import com.monstar_lab_lifetime.monstarplaymusic.R
 import com.monstar_lab_lifetime.monstarplaymusic.model.Music
 import com.monstar_lab_lifetime.monstarplaymusic.view.HomeActivity
 import com.monstar_lab_lifetime.monstarplaymusic.view.MusicManager
-import com.monstar_lab_lifetime.monstarplaymusic.view.Util
 import com.monstar_lab_lifetime.monstarplaymusic.viewmodel.MusicViewModel
 
 class MusicService : Service() {
@@ -120,7 +114,7 @@ class MusicService : Service() {
         val intent = Intent(this, HomeActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.putExtra("re", "okbalo")
-        val intentContent = PendingIntent.getActivity(this, 1, intent, 0)
+        val intentContentActivity = PendingIntent.getActivity(this, 1, intent, 0)
         val intentBroadPlay = Intent().setAction(ACTION_PLAY)
         val actionIntentPlay =
             PendingIntent.getBroadcast(this, 0, intentBroadPlay, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -141,12 +135,12 @@ class MusicService : Service() {
         notification.addAction(R.drawable.icon_notifi, "play", actionIntentPlay)
         notification.addAction(R.drawable.icon_next_notifi, "next", actionIntentNext)
         notification.addAction(R.drawable.ic_baseline_close_24, "Close", actionIntentClose)
-        notification.setContentIntent(intentContent)
+        notification.setContentIntent(intentContentActivity)
         notification.setContentTitle("Music Offline From Phúc")
         notification.setContentText(item.nameMusic)
         notification.setSmallIcon(R.drawable.ic_baseline_library_music_24)
         notification.setAutoCancel(true)
-        notification.priority = NotificationCompat.PRIORITY_DEFAULT
+        notification.priority = NotificationCompat.PRIORITY_LOW
         notification.setStyle(androidx.media.app.NotificationCompat.MediaStyle())
         notification.setLargeIcon(
             BitmapFactory.decodeResource(
