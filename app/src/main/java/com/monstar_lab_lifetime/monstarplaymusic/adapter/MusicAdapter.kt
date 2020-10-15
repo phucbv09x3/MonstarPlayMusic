@@ -37,7 +37,7 @@ class MusicAdapter(var onClick: OnClickItem) : RecyclerView.Adapter<MusicAdapter
         holder.binding.itemData = mutableList[position]
         holder.binding.root.setOnClickListener {
             onClick?.clickItem(mutableList[position], holder.adapterPosition)
-            holder.binding.root.tv_nameMusic.setTextColor(Color.BLUE)
+           // holder.binding.root.tv_nameMusic.setTextColor(Color.BLUE)
         }
         if(Util.songArt(mutableList[position].uri)==null){
             holder.binding.imgMusic.setImageResource(R.drawable.nhaccuatui)

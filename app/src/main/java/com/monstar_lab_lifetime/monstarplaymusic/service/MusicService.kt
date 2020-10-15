@@ -30,9 +30,6 @@ class MusicService : Service() {
         const val ACTION_NEXT = "next"
         const val ACTION_CLOSE = "close"
     }
-
-    // var mNotificationManager :NotificationManager?=null
-    //getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private lateinit var mMusicViewModel: MusicViewModel
     private var mMusicManager: MusicManager? = null
     fun getMusicManager() = mMusicManager
@@ -48,7 +45,6 @@ class MusicService : Service() {
 
 
     override fun onBind(intent: Intent?): IBinder? {
-        Log.d("stt", "inbinder")
         return MyBinder(this)
     }
 

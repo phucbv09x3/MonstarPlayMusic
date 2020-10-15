@@ -74,12 +74,6 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
 
     }
 
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        unbindService(mConnection)
-//        isCheckBoundService = false
-//        Log.d("destroy", "destroy")
-//    }
 
     private var broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -228,7 +222,7 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
         // homeBinding?.root?.tv_nameMusic?.setTextColor(Color.BLUE)
         this.mMusic = music
         this.mPosition = position
-        show_play.visibility = View.VISIBLE
+       // show_play.visibility = View.VISIBLE
         //btn_showPlay.visibility = View.GONE
         tv_nameMusicShow.text = music.nameMusic
         tv_nameSingerShow.text = music.nameSinger
@@ -251,21 +245,13 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
 //            btn_showPlay.visibility = View.GONE
 //        }
         mMusicService?.getMusicManager()?.durationMusic?.observe(this, Observer {
-            // Toast.makeText(this, it.toString(), Toast.LENGTH_LONG).show()
             this.mTimeMusicIsRunning = it
             var minute = it.toLong() / 1000 / 60
             var second = (it.toLong() / 1000) % 60 as Int
             tv_total_time.text = ("$minute:$second")
-
         })
         mMusicService?.playMusic(music)
         btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-//        Log.d("o",mMusicService?.getMusicManager()?.mMediaPlayer?.toString())
-//        mMusicService?.getMusicManager()?.mMediaPlayer?.setOnCompletionListener {
-//            btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-//            mMusicService?.playMusic(music)
-//        }
-
         isCheckMusicRunning = true
         initSeekBar()
         runSeekBar()
@@ -359,21 +345,17 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                     tv_total_time.text = ("$minute:$second")
                     mMusicService?.getMusicManager()?.mMediaPlayer?.let { itt ->
                         if (itt.isPlaying) {
-                            mMusicService?.pauseMusic(it)
-                            btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
 
+                            btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
                         } else {
-                            mMusicService?.continuePlayMusic(it)
                             btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
                         }
-
 
                     }
 
                 })
                 initSeekBar()
                 runSeekBar()
-
             }
         }
         val intent = Intent()
@@ -383,12 +365,10 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
 
 
     override fun onClick(v: View?) {
-//        if (mPosition == mListPlay.size) {
-//            mPosition -= 1
-//        }
         when (v?.id) {
             R.id.btn_play -> {
                 mMusicService?.getMusicManager()?.mMediaPlayer?.let { it ->
+                    Log.d("log",it.isPlaying.toString())
                     if (it.isPlaying) {
                         btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
                         mMusicService?.let { it ->
