@@ -67,7 +67,6 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
         intentFil.addAction(MusicService.ACTION_PREVIOUS)
         registerReceiver(broadcastReceiver, intentFil)
         createConnection()
-        Log.d("bd", mMusicService?.getMusicManager()?.isPlaying().toString())
 
     }
 
@@ -86,12 +85,13 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                     val notificationManager = getSystemService(
                         NOTIFICATION_SERVICE
                     ) as NotificationManager
+                    // notificationManager.cancel(10)
                     notificationManager.deleteNotificationChannel("MusicService")
-                    mMusicService?.stopMusic(mMusic!!)
-                    // stopSV()
-                    // btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+
+                    stopSV()
+                    btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
                     if (isCheckBoundService) {
-//                        unbindService(mConnection)
+                        unbindService(mConnection)
                         //stopSV()
                     }
                 }
@@ -232,14 +232,27 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
     override fun clickItem(music: Music, position: Int) {
         //this.mMusic = music
         this.mPosition = position
+
         mMusicService?.playMusic(music)
-        btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+        if (mMusicService?.getMusicManager()?.isPlaying() == true) {
+            btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+        }
+
         isCheckMusicRunning = true
         initSeekBar()
         runSeekBar()
+        loopMusic()
 
     }
 
+    private fun loopMusic(){
+        mMusicService?.getMusicManager()?.mMediaPlayer?.setOnCompletionListener(object :MediaPlayer.OnCompletionListener{
+            override fun onCompletion(mp: MediaPlayer?) {
+                mMusicService?.playMusic(mMusic!!)
+            }
+
+        })
+    }
     private fun showPlayOnTimeCountDown(music: Music) {
         // show_play.visibility = View.VISIBLE
         //btn_showPlay.visibility = View.GONE
@@ -331,7 +344,6 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                         btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
                     }
                 })
-                // Log.d("notit",mMusicService?.getMusicManager()?.mMediaPlayer?.isPlaying.toString())
                 initSeekBar()
                 runSeekBar()
             }

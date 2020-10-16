@@ -71,6 +71,7 @@ class MusicService : Service() {
 
     fun stopMusic(item: Music) {
         mMusicManager?.stop()
+
     }
 
 

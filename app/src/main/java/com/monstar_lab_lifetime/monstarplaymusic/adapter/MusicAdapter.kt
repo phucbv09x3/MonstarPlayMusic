@@ -1,11 +1,14 @@
 package com.monstar_lab_lifetime.monstarplaymusic.adapter
 
+import android.app.Activity
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.monstar_lab_lifetime.monstarplaymusic.Interface.OnClickItem
 import com.monstar_lab_lifetime.monstarplaymusic.R
+import com.monstar_lab_lifetime.monstarplaymusic.databinding.ActivityHomeBinding
 import com.monstar_lab_lifetime.monstarplaymusic.databinding.ItemMusicBinding
 
 import com.monstar_lab_lifetime.monstarplaymusic.model.Music
@@ -38,6 +41,7 @@ class MusicAdapter(var onClick: OnClickItem) : RecyclerView.Adapter<MusicAdapter
         holder.binding.root.setOnClickListener {
             onClick?.clickItem(mutableList[position], holder.adapterPosition)
            // holder.binding.root.tv_nameMusic.setTextColor(Color.BLUE)
+            //holder.binding.root.img_knowRunning.visibility=View.VISIBLE
         }
         if(Util.songArt(mutableList[position].uri)==null){
             holder.binding.imgMusic.setImageResource(R.drawable.nhaccuatui)
