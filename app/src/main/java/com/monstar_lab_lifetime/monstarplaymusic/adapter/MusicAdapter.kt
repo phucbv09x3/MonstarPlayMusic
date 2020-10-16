@@ -41,7 +41,6 @@ class MusicAdapter(var onClick: OnClickItem) : RecyclerView.Adapter<MusicAdapter
         }
         if(Util.songArt(mutableList[position].uri)==null){
             holder.binding.imgMusic.setImageResource(R.drawable.nhaccuatui)
-
         }else{
             holder.binding.imgMusic.setImageBitmap(Util.songArt(mutableList[position].uri))
         }
