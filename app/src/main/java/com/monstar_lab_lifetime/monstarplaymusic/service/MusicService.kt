@@ -11,6 +11,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
 import com.monstar_lab_lifetime.monstarplaymusic.R
@@ -21,11 +22,8 @@ import com.monstar_lab_lifetime.monstarplaymusic.viewmodel.MusicViewModel
 
 class MusicService : Service() {
 
-    var mu = MutableLiveData<Music>()
-
-    var cu=MutableLiveData<Int>()
-    var mNotificationManager :NotificationManager?=null
-
+    var musicFromService = MutableLiveData<Music>()
+    private var mNotificationManager :NotificationManager?=null
     companion object {
         const val ACTION_PLAY = "play"
         const val ACTION_PREVIOUS = "previous"
@@ -58,22 +56,21 @@ class MusicService : Service() {
 
     fun playMusic(item: Music) {
         mMusicManager?.setData(this, item.uri)
-        cu.value=mMusicManager?.mMediaPlayer?.currentPosition
         createNotificationMusic(item)
     }
 
     fun pauseMusic(item: Music) {
         mMusicManager?.pause()
-
+        createNotificationMusic(item)
     }
 
     fun continuePlayMusic(item: Music) {
         mMusicManager?.continuePlay()
+        createNotificationMusic(item)
     }
 
     fun stopMusic(item: Music) {
         mMusicManager?.stop()
-
     }
 
 
@@ -87,7 +84,6 @@ class MusicService : Service() {
     }
 
     private fun registerChanel() {
-
         mNotificationManager= getSystemService(Context.NOTIFICATION_SERVICE)  as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -99,9 +95,6 @@ class MusicService : Service() {
             mNotificationManager?.createNotificationChannel(channel)
         }
     }
-    fun cancelNoti(){
-        mNotificationManager?.cancel(10)
-    }
 
     private fun isPlaying():Boolean{
         if (getMusicManager()?.mMediaPlayer?.isPlaying!!){
@@ -109,18 +102,17 @@ class MusicService : Service() {
         }
         return false
     }
-
     private fun createNotificationMusic(item: Music) {
         Log.d("no", item.toString())
-        mu.value = item
+        musicFromService.value = item
         //chỗ này log ra nó đã nhận bài hát đây rồi
         val notification = NotificationCompat.Builder(
             this,
             "MusicService"
         )
         val intent = Intent(this, HomeActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        intent.putExtra("re", "okbalo")
+//        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//        intent.putExtra("re", "okbalo")
         val intentContentActivity = PendingIntent.getActivity(this, 1, intent, 0)
         val intentBroadPlay = Intent().setAction(ACTION_PLAY)
         val actionIntentPlay =
@@ -154,20 +146,15 @@ class MusicService : Service() {
                 R.drawable.nhaccuatui
             )
         )
+
+
         startForeground(10, notification.build())
 
     }
-
     override fun onDestroy() {
         Log.d("si", "ondestroy")
         super.onDestroy()
-        mMusicManager?.stop()
+
         mMusicManager?.release()
-
     }
-
-//    override fun onTaskRemoved(rootIntent: Intent?) {
-//        super.onTaskRemoved(rootIntent)
-//        stopSelf()
-//    }
 }

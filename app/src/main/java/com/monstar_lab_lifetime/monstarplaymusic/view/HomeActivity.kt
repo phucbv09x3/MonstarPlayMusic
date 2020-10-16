@@ -1,6 +1,5 @@
 package com.monstar_lab_lifetime.monstarplaymusic.view
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.*
 import android.content.pm.PackageManager
@@ -10,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.widget.SeekBar
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -67,27 +67,36 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
         intentFil.addAction(MusicService.ACTION_PREVIOUS)
         registerReceiver(broadcastReceiver, intentFil)
         createConnection()
+        Log.d("bd", mMusicService?.getMusicManager()?.isPlaying().toString())
+
     }
 
 
     private var broadcastReceiver = object : BroadcastReceiver() {
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun onReceive(context: Context?, intent: Intent?) {
             var ac = intent?.action
-            if(mMusicService?.getMusicManager()?.mMediaPlayer?.isPlaying==true){
+            if (mMusicService?.getMusicManager()?.mMediaPlayer?.isPlaying == true) {
                 btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-            }else{
+            } else {
                 btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
             }
             when (ac) {
                 MusicService.ACTION_CLOSE -> {
-                    //mMusicService?.cancelNoti()
-                    if(isCheckBoundService){
+                    val notificationManager = getSystemService(
+                        NOTIFICATION_SERVICE
+                    ) as NotificationManager
+                    notificationManager.deleteNotificationChannel("MusicService")
+                    mMusicService?.stopMusic(mMusic!!)
+                    // stopSV()
+                    // btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                    if (isCheckBoundService) {
 //                        unbindService(mConnection)
-//                        stopSV()
+                        //stopSV()
                     }
                 }
                 MusicService.ACTION_NEXT -> {
-                    if (mMusicService?.getMusicManager()?.isPlaying()==true) {
+                    if (mMusicService?.getMusicManager()?.isPlaying() == true) {
                         if (mPosition < mListPlay.size - 1) {
                             mPosition += 1
                             btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
@@ -112,11 +121,10 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
 //                    if (mMusicService?.getMusicManager()?.isPlaying()==true){
 //
 //                    }
-                    Log.d("noti",mMusicService?.getMusicManager()?.isPlaying().toString())
+                    Log.d("noti", mMusicService?.getMusicManager()?.isPlaying().toString())
                     mMusicService?.getMusicManager()?.mMediaPlayer?.let {
                         if (it.isPlaying) {
                             btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-
                             mMusicService?.let { it ->
                                 mMusic?.let { itt ->
                                     it.pauseMusic(itt)
@@ -163,11 +171,13 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
         }
     }
 
-    private fun stopSV(){
+
+    private fun stopSV() {
         val intent = Intent()
         intent.setClass(applicationContext, MusicService::class.java)
         stopService(intent)
     }
+
     private fun startService() {
         val intent = Intent()
         intent.setClass(applicationContext, MusicService::class.java)
@@ -285,7 +295,7 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                         seekBar_time!!.progress = it.currentPosition
                         val fm = SimpleDateFormat("mm:ss")
                         val time = fm.format(it.currentPosition)
-                        tv_time.text=time
+                        tv_time.text = time
                         handler.postDelayed(this, 1000)
                     }
 
@@ -309,19 +319,19 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
             ) {
                 mMusicService = (service as MusicService.MyBinder).getService
                 isCheckBoundService = true
-                mMusicService?.mu?.observe(this@HomeActivity, Observer {
-                    mMusic=it
+                mMusicService?.musicFromService?.observe(this@HomeActivity, Observer {
+                    mMusic = it
                     tv_nameMusicShow.text = it.nameMusic
                     tv_nameSingerShow.text = it.nameSinger
                     val fm = SimpleDateFormat("mm:ss")
                     val time = fm.format(it.duration.toInt())
                     tv_total_time.text = time
-                    mTimeMusicIsRunning=it.duration.toInt()
-                    if(mMusicService?.getMusicManager()?.mMediaPlayer?.isPlaying==true){
+                    mTimeMusicIsRunning = it.duration.toInt()
+                    if (mMusicService?.getMusicManager()?.mMediaPlayer?.isPlaying == true) {
                         btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
                     }
                 })
-               // Log.d("notit",mMusicService?.getMusicManager()?.mMediaPlayer?.isPlaying.toString())
+                // Log.d("notit",mMusicService?.getMusicManager()?.mMediaPlayer?.isPlaying.toString())
                 initSeekBar()
                 runSeekBar()
             }
@@ -358,22 +368,15 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
             }
 
             R.id.btn_next -> {
-                    mMusicService?.getMusicManager()?.mMediaPlayer?.let {
-                        if (it.isPlaying) {
-                            btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-                            if (mPosition < mListPlay.size - 1) {
-                                mPosition += 1
+                mMusicService?.getMusicManager()?.mMediaPlayer?.let {
+                    if (it.isPlaying) {
+                        btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+                        if (mPosition < mListPlay.size - 1) {
+                            mPosition += 1
 
-                                tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
-                                tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
-                                mMusicService?.playMusic(mListPlay[mPosition])
-                            } else {
-                                Toast.makeText(
-                                    this@HomeActivity,
-                                    "Không thể next bài",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
+                            tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
+                            tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
+                            mMusicService?.playMusic(mListPlay[mPosition])
                         } else {
                             Toast.makeText(
                                 this@HomeActivity,
@@ -381,6 +384,13 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                                 Toast.LENGTH_LONG
                             ).show()
                         }
+                    } else {
+                        Toast.makeText(
+                            this@HomeActivity,
+                            "Không thể next bài",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
 
 
                 }

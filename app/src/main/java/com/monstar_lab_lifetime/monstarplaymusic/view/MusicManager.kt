@@ -11,7 +11,7 @@ class MusicManager : MediaPlayer.OnPreparedListener ,MediaPlayer.OnErrorListener
     var mMediaPlayer: MediaPlayer? = null
     var durationMusic = MutableLiveData<Int>()
     fun setData(context: Context, uriMusic: String) {
-       mMediaPlayer?.reset()
+       mMediaPlayer?.release()
         mMediaPlayer = MediaPlayer()
         mMediaPlayer?.let {
             //mMediaPlayer?.isLooping
