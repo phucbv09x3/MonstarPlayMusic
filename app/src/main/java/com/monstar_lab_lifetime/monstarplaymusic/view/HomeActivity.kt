@@ -1,12 +1,11 @@
 package com.monstar_lab_lifetime.monstarplaymusic.view
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
-import android.os.Bundle
-import android.os.CountDownTimer
-import android.os.Handler
-import android.os.IBinder
+import android.os.*
 import android.util.Log
 import android.view.View
 import android.widget.SeekBar
@@ -81,22 +80,14 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
             }
             when (ac) {
                 MusicService.ACTION_CLOSE -> {
-                    if (isCheckBoundService) {
-                        if (mMusicService?.getMusicManager()!!.isPlaying()) {
-                            mMusic?.let {
-                                // mMusicService?.stopMusic(it)
-                            }
-
-                        }
-//                        btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                    } else {
-
+                    //mMusicService?.cancelNoti()
+                    if(isCheckBoundService){
+//                        unbindService(mConnection)
+//                        stopSV()
                     }
-
                 }
                 MusicService.ACTION_NEXT -> {
-
-                    if (mMusicService?.getMusicManager()?.mMediaPlayer!!.isPlaying) {
+                    if (mMusicService?.getMusicManager()?.isPlaying()==true) {
                         if (mPosition < mListPlay.size - 1) {
                             mPosition += 1
                             btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
@@ -118,17 +109,21 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
 
                 }
                 MusicService.ACTION_PLAY -> {
-
+//                    if (mMusicService?.getMusicManager()?.isPlaying()==true){
+//
+//                    }
+                    Log.d("noti",mMusicService?.getMusicManager()?.isPlaying().toString())
                     mMusicService?.getMusicManager()?.mMediaPlayer?.let {
                         if (it.isPlaying) {
-                            btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
+                            btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+
                             mMusicService?.let { it ->
                                 mMusic?.let { itt ->
                                     it.pauseMusic(itt)
                                 }
                             }
                         } else {
-                            btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                            btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
                             mMusicService?.let { it ->
                                 mMusic?.let { itt ->
                                     it.continuePlayMusic(itt)
@@ -168,6 +163,11 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
         }
     }
 
+    private fun stopSV(){
+        val intent = Intent()
+        intent.setClass(applicationContext, MusicService::class.java)
+        stopService(intent)
+    }
     private fun startService() {
         val intent = Intent()
         intent.setClass(applicationContext, MusicService::class.java)
@@ -321,6 +321,7 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                         btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
                     }
                 })
+               // Log.d("notit",mMusicService?.getMusicManager()?.mMediaPlayer?.isPlaying.toString())
                 initSeekBar()
                 runSeekBar()
             }
@@ -334,7 +335,9 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.btn_play -> {
+
                 mMusicService?.getMusicManager()?.mMediaPlayer?.let { it ->
+
                     if (it.isPlaying) {
                         btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
                         mMusicService?.let { it ->

@@ -24,6 +24,8 @@ class MusicService : Service() {
     var mu = MutableLiveData<Music>()
 
     var cu=MutableLiveData<Int>()
+    var mNotificationManager :NotificationManager?=null
+
     companion object {
         const val ACTION_PLAY = "play"
         const val ACTION_PREVIOUS = "previous"
@@ -85,8 +87,8 @@ class MusicService : Service() {
     }
 
     private fun registerChanel() {
-        val mNotificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        mNotificationManager= getSystemService(Context.NOTIFICATION_SERVICE)  as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "MusicService",
@@ -94,9 +96,18 @@ class MusicService : Service() {
                 NotificationManager.IMPORTANCE_DEFAULT
             )
             channel.description = "YOUR_NOTIFICATION_CHANNEL_DESCRIPTION"
-            mNotificationManager.createNotificationChannel(channel)
-
+            mNotificationManager?.createNotificationChannel(channel)
         }
+    }
+    fun cancelNoti(){
+        mNotificationManager?.cancel(10)
+    }
+
+    private fun isPlaying():Boolean{
+        if (getMusicManager()?.mMediaPlayer?.isPlaying!!){
+            return true
+        }
+        return false
     }
 
     private fun createNotificationMusic(item: Music) {
@@ -128,14 +139,13 @@ class MusicService : Service() {
         val actionIntentClose =
             PendingIntent.getBroadcast(this, 0, intentBroadClose, PendingIntent.FLAG_UPDATE_CURRENT)
         notification.addAction(R.drawable.icon_previous_notifi, "previous", actionIntentPrevious)
-        notification.addAction(R.drawable.icon_notifi, "play", actionIntentPlay)
+        notification.addAction(if (isPlaying())R.drawable.icon_notifi else R.drawable.ic_baseline_play_arrow_24, "play", actionIntentPlay)
         notification.addAction(R.drawable.icon_next_notifi, "next", actionIntentNext)
         notification.addAction(R.drawable.ic_baseline_close_24, "Close", actionIntentClose)
         notification.setContentIntent(intentContentActivity)
         notification.setContentTitle("Music Offline From Phúc")
         notification.setContentText(item.nameMusic)
         notification.setSmallIcon(R.drawable.ic_baseline_library_music_24)
-        notification.setAutoCancel(true)
         notification.priority = NotificationCompat.PRIORITY_LOW
         notification.setStyle(androidx.media.app.NotificationCompat.MediaStyle())
         notification.setLargeIcon(
