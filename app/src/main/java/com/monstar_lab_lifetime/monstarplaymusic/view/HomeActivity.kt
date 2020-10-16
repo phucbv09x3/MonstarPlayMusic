@@ -89,10 +89,10 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
 
                    // stopSV()
                     btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                    if (isCheckBoundService) {
-                        unbindService(mConnection)
-                        //stopSV()
-                    }
+//                    if (isCheckBoundService) {
+//                        unbindService(mConnection)
+//                        //stopSV()
+//                    }
                 }
                 MusicService.ACTION_NEXT -> {
                     if (mMusicService?.getMusicManager()?.isPlaying() == true) {
