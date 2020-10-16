@@ -11,7 +11,6 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
 import com.monstar_lab_lifetime.monstarplaymusic.R
@@ -33,7 +32,7 @@ class MusicService : Service() {
     private lateinit var mMusicViewModel: MusicViewModel
     private var mMusicManager: MusicManager? = null
     fun getMusicManager() = mMusicManager
-    fun getModel() = mMusicViewModel
+   // fun getModel() = mMusicViewModel
 
     override fun onCreate() {
         super.onCreate()
@@ -69,19 +68,15 @@ class MusicService : Service() {
         createNotificationMusic(item)
     }
 
-    fun stopMusic(item: Music) {
-        mMusicManager?.stop()
+//    fun stopMusic(item: Music) {
+//        mMusicManager?.stop()
+//
+//    }
 
-    }
 
 
-
-    class MyBinder : Binder {
-        var getService: MusicService
-
-        constructor(musicService: MusicService) {
-            this.getService = musicService
-        }
+    class MyBinder(musicService: MusicService) : Binder() {
+        var getService: MusicService = musicService
     }
 
     private fun registerChanel() {

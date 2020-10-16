@@ -14,7 +14,6 @@ class MusicManager : MediaPlayer.OnPreparedListener ,MediaPlayer.OnErrorListener
        mMediaPlayer?.reset()
         mMediaPlayer = MediaPlayer()
         mMediaPlayer?.let {
-            //mMediaPlayer?.isLooping
             it.isLooping
             it.setDataSource(context, Uri.parse(uriMusic))
             it.setOnErrorListener(this)
@@ -25,7 +24,7 @@ class MusicManager : MediaPlayer.OnPreparedListener ,MediaPlayer.OnErrorListener
     }
 
     override fun onPrepared(mp: MediaPlayer) {
-        durationMusic.value = mp?.duration
+        durationMusic.value = mp.duration
         play()
     }
 
@@ -37,7 +36,7 @@ class MusicManager : MediaPlayer.OnPreparedListener ,MediaPlayer.OnErrorListener
         return true
 
     }
-    fun play(): Boolean {
+    private fun play(): Boolean {
         if (mMediaPlayer == null) {
             return false
         }

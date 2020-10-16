@@ -1,10 +1,10 @@
 package com.monstar_lab_lifetime.monstarplaymusic.viewmodel
 
 import android.content.ContentResolver
-import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
-import android.provider.MediaStore.Audio.AlbumColumns.ALBUM_ART
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.monstar_lab_lifetime.monstarplaymusic.model.Music
@@ -14,19 +14,19 @@ class MusicViewModel : ViewModel() {
     private var mListMusicInViewModel = mutableListOf<Music>()
     fun getListMusicOffLine(contentResolver: ContentResolver) {
 
-        var uriri : Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        var cursor=contentResolver.query(uriri, null, null, null, null)
+        val uriExternal : Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        val cursor=contentResolver.query(uriExternal, null, null, null, null)
         if (cursor != null && cursor.moveToFirst()) {
-            var urii=cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
-            var id = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
-            var title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            var songArtist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-            var duration=cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
+            val uri=cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+            val id = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
+            val title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+            val songArtist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+            val duration=cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
             do {
                 val idd = cursor.getString(id)
                 val currentTT = cursor.getString(title)
                 val currentArtist = cursor.getString(songArtist)
-                val uri=cursor.getString(urii)
+                val uri=cursor.getString(uri)
                 val durationMusic=cursor.getString(duration)
                 mListMusicInViewModel.add(
                     Music(

@@ -24,22 +24,21 @@ import com.monstar_lab_lifetime.monstarplaymusic.model.Music
 import com.monstar_lab_lifetime.monstarplaymusic.service.MusicService
 import com.monstar_lab_lifetime.monstarplaymusic.viewmodel.MusicViewModel
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.activity_home.view.*
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.util.*
 
 
 class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
     private var homeBinding: ActivityHomeBinding? = null
     private var mMusicService: MusicService? = null
-    private var mMediaPlayer: MediaPlayer? = null
-    private var mMusicManager: MusicManager? = null
     private lateinit var mConnection: ServiceConnection
     private var mListPlay = mutableListOf<Music>()
     private var isCheckBoundService: Boolean = false
     private var isCheckMusicRunning: Boolean = false
     private var mMusic: Music? = null
     private var mPosition: Int = 0
-    private var mCount = 0
     private var mTimeMusicIsRunning = 0
     private lateinit var musicViewModel: MusicViewModel
     private lateinit var intentFil: IntentFilter
@@ -74,7 +73,7 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
     private var broadcastReceiver = object : BroadcastReceiver() {
         @RequiresApi(Build.VERSION_CODES.O)
         override fun onReceive(context: Context?, intent: Intent?) {
-            var ac = intent?.action
+            val ac = intent?.action
             if (mMusicService?.getMusicManager()?.mMediaPlayer?.isPlaying == true) {
                 btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
             } else {
@@ -88,7 +87,7 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                     // notificationManager.cancel(10)
                     notificationManager.deleteNotificationChannel("MusicService")
 
-                    stopSV()
+                   // stopSV()
                     btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
                     if (isCheckBoundService) {
                         unbindService(mConnection)
@@ -125,14 +124,14 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                     mMusicService?.getMusicManager()?.mMediaPlayer?.let {
                         if (it.isPlaying) {
                             btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                            mMusicService?.let { it ->
+                            mMusicService?.let {
                                 mMusic?.let { itt ->
                                     it.pauseMusic(itt)
                                 }
                             }
                         } else {
                             btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-                            mMusicService?.let { it ->
+                            mMusicService?.let {
                                 mMusic?.let { itt ->
                                     it.continuePlayMusic(itt)
                                 }
@@ -148,8 +147,8 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                             if (mListPlay.size > mPosition && mPosition >= 1) {
                                 mPosition -= 1
                                 btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-                                tv_nameMusicShow.text = mListPlay[mPosition]!!.nameMusic
-                                tv_nameSingerShow.text = mListPlay[mPosition]!!.nameSinger
+                                tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
+                                tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
                                 mMusicService?.playMusic(mListPlay[mPosition])
                             } else {
                                 Toast.makeText(
@@ -221,6 +220,7 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
+
     private fun getListOff() {
         musicViewModel.getListMusicOffLine(contentResolver)
         musicViewModel.listMusic.observe(this, Observer<MutableList<Music>> {
@@ -253,30 +253,30 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
 
         })
     }
-    private fun showPlayOnTimeCountDown(music: Music) {
-        // show_play.visibility = View.VISIBLE
-        //btn_showPlay.visibility = View.GONE
-        tv_nameMusicShow.text = music.nameMusic
-        tv_nameSingerShow.text = music.nameSinger
-        val countDownTimer = object : CountDownTimer(8000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                var text = millisUntilFinished / 1000
-                if (text.toInt() == 0) {
-                    show_play.visibility = View.VISIBLE
-                    btn_showPlay.visibility = View.VISIBLE
-                }
-            }
-
-            override fun onFinish() {
-            }
-        }
-        // countDownTimer.start()
-//        btn_showPlay.setOnClickListener {
-//          //  countDownTimer.start()
-//            show_play.visibility = View.VISIBLE
-//            btn_showPlay.visibility = View.GONE
+//    private fun showPlayOnTimeCountDown(music: Music) {
+//        // show_play.visibility = View.VISIBLE
+//        //btn_showPlay.visibility = View.GONE
+//        tv_nameMusicShow.text = music.nameMusic
+//        tv_nameSingerShow.text = music.nameSinger
+//        val countDownTimer = object : CountDownTimer(8000, 1000) {
+//            override fun onTick(millisUntilFinished: Long) {
+//                val text = millisUntilFinished / 1000
+//                if (text.toInt() == 0) {
+//                    show_play.visibility = View.VISIBLE
+//                    homeBinding!!.root.btn_showPlay.visibility = View.VISIBLE
+//                }
+//            }
+//
+//            override fun onFinish() {
+//            }
 //        }
-    }
+//        // countDownTimer.start()
+////        btn_showPlay.setOnClickListener {
+////          //  countDownTimer.start()
+////            show_play.visibility = View.VISIBLE
+////            btn_showPlay.visibility = View.GONE
+////        }
+//    }
 
     private fun runSeekBar() {
         seekBar_time.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -306,7 +306,7 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                 try {
                     mMusicService?.getMusicManager()?.mMediaPlayer?.let {
                         seekBar_time!!.progress = it.currentPosition
-                        val fm = SimpleDateFormat("mm:ss")
+                        val fm = SimpleDateFormat("mm:ss", Locale.US)
                         val time = fm.format(it.currentPosition)
                         tv_time.text = time
                         handler.postDelayed(this, 1000)
@@ -336,8 +336,8 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                     mMusic = it
                     tv_nameMusicShow.text = it.nameMusic
                     tv_nameSingerShow.text = it.nameSinger
-                    val fm = SimpleDateFormat("mm:ss")
-                    val time = fm.format(it.duration.toInt())
+                    val format = SimpleDateFormat("mm:ss",Locale.US)
+                    val time = format.format(it.duration.toInt())
                     tv_total_time.text = time
                     mTimeMusicIsRunning = it.duration.toInt()
                     if (mMusicService?.getMusicManager()?.mMediaPlayer?.isPlaying == true) {
@@ -362,14 +362,14 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
 
                     if (it.isPlaying) {
                         btn_play.setImageResource(R.drawable.ic_baseline_play_arrow_24)
-                        mMusicService?.let { it ->
+                        mMusicService?.let {
                             mMusic?.let { itt ->
                                 it.pauseMusic(itt)
                             }
                         }
                     } else {
                         btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-                        mMusicService?.let { it ->
+                        mMusicService?.let {
                             mMusic?.let { itt ->
                                 it.continuePlayMusic(itt)
                             }
@@ -413,8 +413,8 @@ class HomeActivity : AppCompatActivity(), OnClickItem, View.OnClickListener {
                         if (mListPlay.size > mPosition && mPosition >= 1) {
                             mPosition -= 1
                             btn_play.setImageResource(R.drawable.ic_baseline_pause_24)
-                            tv_nameMusicShow.text = mListPlay[mPosition]!!.nameMusic
-                            tv_nameSingerShow.text = mListPlay[mPosition]!!.nameSinger
+                            tv_nameMusicShow.text = mListPlay[mPosition].nameMusic
+                            tv_nameSingerShow.text = mListPlay[mPosition].nameSinger
                             mMusicService?.playMusic(mListPlay[mPosition])
                         } else {
                             Toast.makeText(this, "Không thể back bài", Toast.LENGTH_LONG).show()
